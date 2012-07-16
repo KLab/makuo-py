@@ -21,6 +21,13 @@ _logger = logging.getLogger(__name__)
 class MakuoException(Exception):
     pass
 
+
+def ensure_bytes(s, encoding='utf-8'):
+    if isinstance(s, bytes):
+        return s
+    return s.encode(encoding)
+
+
 class Makuo(object):
     """
     Makuosan client.
@@ -75,16 +82,53 @@ class Makuo(object):
         self._sock.sendall(command + b'\r\n')
         return self._wait_prompt()
 
-    def send(self, abspath):
-        relpath = self.relpath(abspath)
-        _logger.info("Sending file: %r", relpath)
-        return self.do_command(b'send -r {0}'.format(relpath))
+    def _do_sync_command(self, command, recursive, dry, target, path):
+        args = [command]
 
-    def send_dir(self, abspath):
-        relpath = self.relpath(abspath)
-        _logger.info("Sending dir: %r", relpath)
-        self.do_command(b'dsync -r {0}'.format(relpath))
-        self.do_command(b'send -r {0}'.format(relpath))
+        if recursive:
+            args.append(b'-r')
+
+        if dry:
+            args.append(b'-n')
+
+        if target:
+            if not isinstance(target, bytes):
+                target = target.encode('ascii')
+            args += [b'-t', target]
+
+        if abspath is not None:
+            relpath = self.relpath(abspath)
+            if not isinstance(relpath, bytes):
+                relpath = relpath.encode('ascii')
+            args.append(relpath)
+
+        command = b' '.join(command)
+        _logger.info(str(command))
+        return self.do_command(command)
+
+    def send(self, abspath, recursive=False, dry=False, target=None):
+        return self._do_sync_command(b'send', recursive, dry, target, path)
+
+    def sync(self, abspath, recursive=False, dry=False, target=None):
+        return self._do_sync_command(b'sync', recursive, dry, target, path)
+
+    def dsync(self, abspath, recursive=False, dry=False, target=None):
+        return self._do_sync_command(b'dsync', recursive, dry, target, path)
+
+    def check(self, abspath, recursive=False, target=None):
+        return self._do_sync_command(b'check', recursive, False, target, path)
+
+    def add_exclude(self, pattern):
+        return self.do_command(b'exclude add ' + ensure_bytes(pattern))
+
+    def del_exclude(self, pattern):
+        return self.do_command(b'exclude del ' + ensure_bytes(pattern))
+
+    def list_exclude(self):
+        return self.do_command(b'exclude list')
+
+    def clear_exclude(self):
+        return self.do_command(b'exclude clear')
 
     def close(self):
         if self._sock:
