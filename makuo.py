@@ -34,10 +34,10 @@ class Makuo(object):
 
         When `debug` is true, set makuosan loglevel to 1.
         """
+        self._base = basedir
         self._debug = debug
         self._sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self._sock.connect(sock_path)
-        self._base = basedir
         self._wait_prompt()
         if debug:
             self.do_command(b"loglevel 1\r\n")
@@ -45,6 +45,8 @@ class Makuo(object):
     def _wait_prompt(self):
         res = BytesIO()
         line = b''
+        debug = self._debug
+
         while True:
             buf = self._sock.recv(512)
             if not buf:
@@ -54,10 +56,11 @@ class Makuo(object):
                 L, line = line.split(b'\n', 1)
                 L = L.rstrip()
                 if L.startswith(b'error:'):
-                    raise MakuoException(L)
-                if self._debug:
-                    _logger.debug(L)
-                res.write(L + b'\n')
+                    _logger.error(L)
+                else:
+                    if debug:
+                        _logger.debug(L)
+                    res.write(L + b'\n')
             if line == b'> ':
                 return res.getvalue()
 
