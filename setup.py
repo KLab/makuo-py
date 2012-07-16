@@ -6,5 +6,5 @@ setup(name='makuo',
       author='INADA Naoki',
       author_email='songofacandy@gmail.com',
       url='https://github.com/KLab/makuo-py',
-      py_modules='makuo.py',
+      py_modules=['makuo.py'],
       )
