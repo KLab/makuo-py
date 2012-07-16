@@ -92,14 +92,11 @@ class Makuo(object):
             args.append(b'-n')
 
         if target:
-            if not isinstance(target, bytes):
-                target = target.encode('ascii')
+            target = ensure_bytes(target, 'ascii')
             args += [b'-t', target]
 
         if abspath is not None:
-            relpath = self.relpath(abspath)
-            if not isinstance(relpath, bytes):
-                relpath = relpath.encode('ascii')
+            relpath = ensure_bytes(self.relpath(abspath))
             args.append(relpath)
 
         command = b' '.join(command)
