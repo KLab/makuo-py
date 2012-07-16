@@ -73,8 +73,8 @@ class Makuo(object):
             if line == b'> ':
                 return res.getvalue()
 
-    def relpath(self, abspath):
-        relpath = os.path.relpath(abspath, self._base)
+    def relpath(self, path):
+        relpath = os.path.relpath(path, self._base)
         if not isinstance(relpath, bytes):
             relpath = relpath.encode('utf-8')
         return relpath
@@ -97,11 +97,11 @@ class Makuo(object):
             target = ensure_bytes(target, 'ascii')
             args += [b'-t', target]
 
-        if abspath is not None:
-            relpath = ensure_bytes(self.relpath(abspath))
+        if path is not None:
+            relpath = ensure_bytes(self.relpath(path))
             args.append(relpath)
 
-        command = b' '.join(command)
+        command = b' '.join(args)
         _logger.info(str(command))
         return self.do_command(command)
 
