@@ -33,7 +33,7 @@ class Makuo(object):
     Makuosan client.
     """
 
-    def __init__(self, sock_path, basedir, debug=False):
+    def __init__(self, sock_path, basedir=None, debug=False):
         """
         `sock_path` is path of Unix domain socket that makuosan daemon listens.
 
@@ -48,6 +48,8 @@ class Makuo(object):
         self._wait_prompt()
         if debug:
             self.do_command(b"loglevel 1\r\n")
+        if basedir is None:
+            self._base = self.status()[b'basedir']
 
     def _wait_prompt(self):
         res = BytesIO()
@@ -126,6 +128,16 @@ class Makuo(object):
 
     def clear_exclude(self):
         return self.do_command(b'exclude clear')
+
+    def status(self):
+        result = self.do_command(b'status')
+        status = {}
+        for L in result.splitlines():
+            k, v = L.split(b':')
+            k = k.strip()
+            v = v.strip()
+            status[k] = v
+        return status
 
     def close(self):
         if self._sock:
