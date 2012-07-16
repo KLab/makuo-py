@@ -105,16 +105,16 @@ class Makuo(object):
         _logger.info(str(command))
         return self.do_command(command)
 
-    def send(self, abspath, recursive=False, dry=False, target=None):
+    def send(self, path, recursive=False, dry=False, target=None):
         return self._do_sync_command(b'send', recursive, dry, target, path)
 
-    def sync(self, abspath, recursive=False, dry=False, target=None):
+    def sync(self, path, recursive=False, dry=False, target=None):
         return self._do_sync_command(b'sync', recursive, dry, target, path)
 
-    def dsync(self, abspath, recursive=False, dry=False, target=None):
+    def dsync(self, path, recursive=False, dry=False, target=None):
         return self._do_sync_command(b'dsync', recursive, dry, target, path)
 
-    def check(self, abspath, recursive=False, target=None):
+    def check(self, path, recursive=False, target=None):
         return self._do_sync_command(b'check', recursive, False, target, path)
 
     def add_exclude(self, pattern):
