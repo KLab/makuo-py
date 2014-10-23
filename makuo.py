@@ -41,7 +41,6 @@ class Makuo(object):
 
         When `debug` is true, set makuosan loglevel to 1.
         """
-        self._base = basedir
         self._debug = debug
         self._sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self._sock.connect(sock_path)
@@ -50,6 +49,8 @@ class Makuo(object):
             self.do_command(b"loglevel 1\r\n")
         if basedir is None:
             self._base = self.status()[b'basedir']
+        else:
+            self._base = ensure_bytes(basedir)
 
     def _wait_prompt(self):
         res = BytesIO()
@@ -74,10 +75,12 @@ class Makuo(object):
                 return res.getvalue()
 
     def relpath(self, path):
-        relpath = os.path.relpath(path, self._base)
-        if not isinstance(relpath, bytes):
-            relpath = relpath.encode('utf-8')
-        return relpath
+        """
+        :type path: str or bytes
+        :rtype: bytes
+        """
+        path = ensure_bytes(path)
+        return os.path.relpath(path, self._base)
 
     def do_command(self, command):
         """Send `command`"""
@@ -98,8 +101,7 @@ class Makuo(object):
             args += [b'-t', target]
 
         if path is not None:
-            relpath = ensure_bytes(self.relpath(path))
-            args.append(relpath)
+            args.append(self.relpath(path))
 
         command = b' '.join(args)
         _logger.info(str(command))
