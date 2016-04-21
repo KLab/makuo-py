@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='makuo',
-      version='0.3',
+      version='0.4',
       description='makuosan client',
       author='INADA Naoki',
       author_email='songofacandy@gmail.com',
