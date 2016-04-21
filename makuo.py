@@ -135,7 +135,9 @@ class Makuo(object):
         result = self.do_command(b'status')
         status = {}
         for L in result.splitlines():
-            k, v = L.split(b':')
+            if b':' not in L:
+                continue
+            k, v = L.split(b':', 1)
             k = k.strip()
             v = v.strip()
             status[k] = v
