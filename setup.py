@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='makuo',
       version='0.4',
